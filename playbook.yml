@@ -1,0 +1,47 @@
+- hosts: dvrax.com
+  become: yes
+  become_method: doas
+
+  vars:
+  - dns_name: dvrax.com
+
+  tasks:
+  - name: Enable httpd.
+    service: name=httpd enabled=yes
+
+  - name: Configure httpd with bootstrap config.
+    template:
+      src: templates/httpd_bootstrap.conf
+      dest: /etc/httpd.conf
+
+  - name: Reload httpd.
+    service: name=httpd state=reloaded
+
+  - name: Add acme configuration file.
+    template:
+      src: templates/acme-client.conf
+      dest: /etc/acme-client.{{ dns_name }}.conf
+      
+  - name: Include acme configuration file in /etc/acme-client.conf
+    lineinfile:
+      path: /etc/acme-client.conf
+      state: present
+      line: 'include "/etc/acme-client.{{ dns_name }}.conf"'
+
+  - name: Get certificates.
+    command: acme-client -vAD {{ dns_name }}
+    args:
+      creates: /etc/ssl/{{ dns_name }}.fullchain.pem 
+
+  - name: Set up acme to run daily.
+    template:
+      src: templates/daily.local
+      dest: /etc/daily.local
+
+  - name: Configure httpd.
+    template:
+      src: templates/httpd.conf
+      dest: /etc/httpd.conf
+
+  - name: Reload httpd.
+    service: name=httpd state=reloaded
