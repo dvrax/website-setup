@@ -34,9 +34,11 @@
       creates: /etc/ssl/{{ dns_name }}.fullchain.pem 
 
   - name: Set up acme to run daily.
-    template:
-      src: templates/daily.local
-      dest: /etc/daily.local
+    lineinfile:
+      path: /etc/daily.local
+      line: "acme-client {{ dns_name }} && rcctl reload httpd"
+      state: present
+      create: yes
 
   - name: Configure httpd.
     template:
