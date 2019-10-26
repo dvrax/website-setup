@@ -17,16 +17,24 @@
   - name: Reload httpd.
     service: name=httpd state=reloaded
 
-  - name: Add acme configuration file.
+  - name: Add acme domain configuration file.
     template:
       src: templates/acme-domain-client.conf
       dest: /etc/acme-client.{{ dns_name }}.conf
-      
-  - name: Include acme configuration file in /etc/acme-client.conf
+
+  - name: Add acme provider configuration file.
+    template:
+      src: templates/acme-client-letsencrypt.conf
+      dest: /etc/acme-client-letsencrypt.conf
+
+  - name: Include acme configuration files in /etc/acme-client.conf
     lineinfile:
       path: /etc/acme-client.conf
       state: present
-      line: 'include "/etc/acme-client.{{ dns_name }}.conf"'
+      line: {{ item }}
+    loop:
+    - 'include "/etc/acme-client.{{ dns_name }}.conf"'
+    - 'include "/etc/acme-client-letsencrypt.conf"'
 
   - name: Get certificates.
     command: acme-client -vAD {{ dns_name }}
