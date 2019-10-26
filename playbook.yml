@@ -19,7 +19,7 @@
 
   - name: Add acme configuration file.
     template:
-      src: templates/acme-client.conf
+      src: templates/acme-domain-client.conf
       dest: /etc/acme-client.{{ dns_name }}.conf
       
   - name: Include acme configuration file in /etc/acme-client.conf
