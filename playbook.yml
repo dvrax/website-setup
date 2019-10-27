@@ -9,7 +9,7 @@
   - name: Make website folder
     file:
       path: "/var/www/{{ dns_name }}"
-      mode: '0664'
+      mode: '0775'
       state: directory
       owner: www
       group: www
