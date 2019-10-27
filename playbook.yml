@@ -6,6 +6,19 @@
   - dns_name: dvrax.com
 
   tasks:
+  - name: Make website folder
+    file:
+      path: /var/www/{{ dns_name }}
+      mode: '0664'
+      state: directory
+      owner: www
+      group: www
+
+  - name: Make deployment user
+    user:
+      name: webdeploy
+      groups: www
+
   - name: Enable httpd.
     service: name=httpd enabled=yes
 
