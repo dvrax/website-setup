@@ -8,7 +8,7 @@
   tasks:
   - name: Make website folder
     file:
-      path: /var/www/{{ dns_name }}
+      path: "/var/www/{{ dns_name }}"
       mode: '0664'
       state: directory
       owner: www
@@ -33,24 +33,25 @@
   - name: Add acme domain configuration file.
     template:
       src: templates/acme-domain-client.conf
-      dest: /etc/acme-client.{{ dns_name }}.conf
+      dest: "/etc/acme/acme-client.{{ dns_name }}.conf"
 
   - name: Add acme provider configuration file.
     template:
       src: templates/acme-client-letsencrypt.conf
-      dest: /etc/acme-client-letsencrypt.conf
+      dest: "/etc/acme/acme-client-letsencrypt.conf"
 
   - name: Include acme configuration files in /etc/acme-client.conf
     lineinfile:
+      create: true
       path: /etc/acme-client.conf
       state: present
-      line: {{ item }}
+      line: "{{ item }}"
     loop:
-    - 'include "/etc/acme-client.{{ dns_name }}.conf"'
-    - 'include "/etc/acme-client-letsencrypt.conf"'
+    - 'include "/etc/acme/acme-client-letsencrypt.conf"'
+    - 'include "/etc/acme/acme-client.{{ dns_name }}.conf"'
 
   - name: Get certificates.
-    command: acme-client -vAD {{ dns_name }}
+    command: acme-client -v {{ dns_name }}
     args:
       creates: /etc/ssl/{{ dns_name }}.fullchain.pem 
 
